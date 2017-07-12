@@ -216,10 +216,26 @@ where code_ind = 'A3' and zhu_gid in (405007,405235,405812,406312,406589,406641,
 -- indicateur 15 - se_eaupot
 ------------------------------------------------------------------------------------------------------
 
+/*
+Dans la table fma.valeurs_socio_eco, on trouve ceci  : 
+2;"Autres";" À préciser en remarque";1  -> B10
+3;"Pas de valeur socio-économique identifiée";"";2 
+4;"Production et stockage d'eau potable";"";3 -> B1
+5;"Production biologique";" Aquaculture, pêche, chasse";4 -> B2
+6;"Production agricole et sylvicole";" Pâturage, fauche, roseaux, sylviculture";5 -> B3
+7;"Production de matière première";" Granulat, tourbe, sel, etc.";6 -> B4
+8;"Intérêt pour la valorisation pédagogique/éducation";"";7 -> B5
+9;"Paysage, patrimoine culturel, identité locale";"";8 -> B6
+10;"(Intérêt pour les loisirs/valeurs récréatives)";"";9 -> B7
+11;"Valeur scientifique";"";10 -> B8
+14;"Tourisme";"''";11 -> B9
+
+la ligne avec gid = 3 et vse_id = 4 correspond à Production et stockage d'eau potable. 
+*/
 
 select niv_libelle, count(zhu_vse_zhu) 
 from fma.zhu_vse, fma.niveau 
-where  niv_id=zhu_vse_imp
+where  niv_id=zhu_vse_imp and zhu_vse_vse = 4
 group by niv_libelle
 order by niv_libelle;
 
@@ -243,17 +259,44 @@ select zhu_vse_zhu, niv_libelle
 from fma.zhu_vse, fma.niveau 
 where  niv_id=zhu_vse_imp
 -- 86757
-
+-- réinitialiser les valeurs pour cet indicateurs
+update indicateurs.note i  set i_brut = null, missing = true  
+where code_ind = 'B1'  ;
+-- Query returned successfully: 575636 rows affected, 30.5 secs execution time.
 
 -- Mettre à jour l'indicateur
 update note i set i_brut = niveau, missing = false 
 from 
 (select 'B1', zhu_vse_zhu, niv_libelle::int as niveau
 from fma.zhu_vse, fma.niveau
-where niv_id=zhu_vse_imp) as k
+where niv_id=zhu_vse_imp and zhu_vse_vse = 4) as k
 where code_ind = 'B1' and i.zhu_gid = k.zhu_vse_zhu ;  
--- Query returned successfully: 47645 rows affected, 4.5 secs execution time.
+-- Query returned successfully: 1196 rows affected, 19.5 secs execution time.
 
+
+------------------------------------------------------------------------------------------------------
+-- indicateur à créer B11
+------------------------------------------------------------------------------------------------------
+
+
+select niv_libelle, count(zhu_vse_zhu) 
+from fma.zhu_vse, fma.niveau 
+where  niv_id=zhu_vse_imp and zhu_vse_vse = 3
+group by niv_libelle
+order by niv_libelle;
+
+"1";3552
+"2";430
+"3";829
+
+-- Mettre à jour l'indicateur
+
+update note i set i_brut = niveau, missing = false 
+from 
+(select 'B1', zhu_vse_zhu, niv_libelle::int as niveau
+from fma.zhu_vse, fma.niveau
+where niv_id=zhu_vse_imp and zhu_vse_vse = 3) as k
+where code_ind = 'B11' and i.zhu_gid = k.zhu_vse_zhu ;  
 
 ------------------------------------------------------------------------------------------------------
 -- indicateur 30 - bio_densiterichesse
