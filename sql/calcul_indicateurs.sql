@@ -1,4 +1,4 @@
----------------------------------------------------------------------------------------------------
+﻿---------------------------------------------------------------------------------------------------
 ---------------------------------------------------------------------------------------------------
 -- Auteur : Christine Plumejeaud-Perreau
 -- 			UMR LIENSs 7266, CNRS et Université de la Rochelle, 
@@ -290,8 +290,9 @@ order by niv_libelle;
 "3";829
 
 -- Mettre à jour l'indicateur
+-- niveau corrigé en 0 (le 28/07/2017)
 
-update note i set i_brut = niveau, missing = false 
+update note i set i_brut = 0, missing = false 
 from 
 (select 'B1', zhu_vse_zhu, niv_libelle::int as niveau
 from fma.zhu_vse, fma.niveau
